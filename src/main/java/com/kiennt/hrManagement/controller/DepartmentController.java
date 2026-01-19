@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class DepartmentController {
     private final DepartmentService departmentService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<ApiResponse<DepartmentResponse>> create(
             @Valid @RequestBody DepartmentRequest request) {
         DepartmentResponse response = departmentService.create(request);
@@ -28,7 +28,7 @@ public class DepartmentController {
                 .body(ApiResponse.success("Department created successfully", response));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<DepartmentResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody DepartmentRequest request) {
@@ -36,19 +36,19 @@ public class DepartmentController {
         return ResponseEntity.ok(ApiResponse.success("Department updated successfully", response));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         departmentService.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Department deleted successfully"));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get-by-id/{id}")
     public ResponseEntity<ApiResponse<DepartmentResponse>> getById(@PathVariable Long id) {
         DepartmentResponse response = departmentService.getById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @GetMapping
+    @GetMapping("/get-all")
     public ResponseEntity<ApiResponse<Page<DepartmentResponse>>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
