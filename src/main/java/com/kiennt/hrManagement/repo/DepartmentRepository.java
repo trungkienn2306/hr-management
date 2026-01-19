@@ -26,9 +26,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     @Query("SELECT d FROM Department d WHERE d.status = 1")
     Page<Department> findAllActive(Pageable pageable);
 
-    @Query("SELECT d FROM Department d WHERE " +
-            "(:search IS NULL OR LOWER(d.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(d.code) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-            "AND d.status = 1")
+    @Query("SELECT d FROM Department d WHERE d.status = 1 AND " +
+            "(d.name LIKE %:search% OR d.code LIKE %:search%)")
     Page<Department> searchActiveDepartments(@Param("search") String search, Pageable pageable);
 }

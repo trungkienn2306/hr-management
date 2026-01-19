@@ -18,38 +18,38 @@ import java.util.List;
 public class Employee extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    public Long id;
 
     @Column(name = "code", unique = true, nullable = false, length = 50)
-    private String code;
+    public String code;
 
     @Column(name = "full_name", nullable = false, length = 100)
-    private String fullName;
+    public String fullName;
 
     @Email
     @Column(name = "email", unique = true, nullable = false, length = 100)
-    private String email;
+    public String email;
 
     @Column(name = "phone", length = 20)
-    private String phone;
+    public String phone;
 
     @Column(name = "position", length = 100)
-    private String position;
+    public String position;
 
     @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
+    public LocalDate dateOfBirth;
 
     @Column(name = "start_date")
-    private LocalDate startDate;
+    public LocalDate startDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = false)
-    private Department department;
+    public Department department;
 
     @Column(name = "status", nullable = false)
     @Builder.Default
-    private Integer status = 1; // 1=ACTIVE, 0=INACTIVE
+    public Integer status = 1; // 1=ACTIVE, 0=INACTIVE
 
     @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
-    private List<TransferHistory> transferHistories = new ArrayList<>();
+    public List<TransferHistory> transferHistories = new ArrayList<>();
 }

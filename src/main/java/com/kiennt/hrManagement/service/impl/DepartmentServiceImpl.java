@@ -3,11 +3,10 @@ package com.kiennt.hrManagement.service.impl;
 import com.kiennt.hrManagement.dto.request.DepartmentRequest;
 import com.kiennt.hrManagement.dto.response.DepartmentResponse;
 import com.kiennt.hrManagement.entity.Department;
-import com.kiennt.hrManagement.exception.DepartmentDuplicateException;
+import com.kiennt.hrManagement.exception.DuplicateException;
 import com.kiennt.hrManagement.exception.ResourceNotFoundException;
 import com.kiennt.hrManagement.repo.DepartmentRepository;
 import com.kiennt.hrManagement.service.DepartmentService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,13 +30,13 @@ public class DepartmentServiceImpl implements DepartmentService {
         // Check duplicate code
         if (departmentRepository.existsByCode(request.getCode())) {
             log.error("Duplicate department code: {}", request.getCode());
-            throw new DepartmentDuplicateException("code", request.getCode());
+            throw new DuplicateException("Department code", request.getCode());
         }
 
         // Check duplicate name
         if (departmentRepository.existsByName(request.getName())) {
             log.error("Duplicate department name: {}", request.getName());
-            throw new DepartmentDuplicateException("name", request.getName());
+            throw new DuplicateException("Department name", request.getName());
         }
 
         Department department = Department.builder()
@@ -121,7 +120,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional(readOnly = true)
     public Page<DepartmentResponse> search(String search, Pageable pageable) {
-        Page<Department> departments = departmentRepository.searchActiveDepartments(search, pageable);
+        Page<Department> departments;
+//        = departmentRepository.searchActiveDepartments(search, pageable);
+        if (search == null || search.trim().isEmpty()) {
+            departments = departmentRepository.findAllActive(pageable);
+        } else {
+            departments = departmentRepository.searchActiveDepartments(search, pageable);
+        }
         return departments.map(this::mapToResponseWithEmployeeCount);
     }
 
