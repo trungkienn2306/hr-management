@@ -30,13 +30,11 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
         log.info("Searching employees with dynamic SQL - departmentId: {}, status: {}, search: {}",
                 departmentId, status, search);
 
-        // Base SQL với Tuple (không cần map to Entity)
         StringBuilder baseSql = new StringBuilder();
         baseSql.append("FROM employees e ");
         baseSql.append("LEFT JOIN departments d ON e.department_id = d.id ");
         baseSql.append("WHERE 1 = 1 ");
 
-        // Select SQL với Tuple
         String selectSql = """
                 SELECT
                     e.id as id,
@@ -55,14 +53,12 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
                     d.name as department_name
                 """;
 
-        // Count SQL
         String countSql = "SELECT COUNT(DISTINCT e.id) ";
 
         StringBuilder condition = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         List<String> conditions = new ArrayList<>();
 
-        // Build conditions (tương tự như trên)
         if (departmentId != null) {
             conditions.add("e.department_id = :departmentId");
             parameters.put("departmentId", departmentId);
@@ -89,10 +85,8 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
 
         condition.append(" AND ").append(String.join(" AND ", conditions));
 
-        // Build order by
         String orderBy = buildOrderBy(pageable);
 
-        // Final SQL queries
         String finalSelectSql = selectSql + baseSql + condition + orderBy;
         String finalCountSql = countSql + baseSql + condition;
 
@@ -103,11 +97,10 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
         Query query = entityManager.createNativeQuery(finalSelectSql, Tuple.class);
         setParameters(query, parameters);
 
-        // Pagination
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
 
-        // Map
+        // Map tuples to dto
         List<Tuple> tuples = query.getResultList();
         List<EmployeeResponse> results = resultTransformer.mapTuplesToResponses(tuples);
 
@@ -120,26 +113,28 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
         return new PageImpl<>(results, pageable, total);
     }
 
-    // Các phương thức helper giữ nguyên...
+
     private String buildOrderBy(Pageable pageable) {
-        if (pageable.getSort().isEmpty()) {
-            return " ORDER BY e.created_at DESC";
-        }
-
         StringBuilder orderBy = new StringBuilder(" ORDER BY ");
-        pageable.getSort().forEach(order -> {
-            String property = order.getProperty();
-            String columnName = convertPropertyToColumnName(property);
-            orderBy.append(columnName)
-                    .append(" ")
-                    .append(order.getDirection().name())
-                    .append(", ");
-        });
 
-        // Remove last comma and space
-        orderBy.setLength(orderBy.length() - 2);
+        if (pageable.getSort().isEmpty()) {
+            orderBy.append("e.created_at DESC");
+        } else {
+            pageable.getSort().forEach(order -> {
+                String property = order.getProperty();
+                String columnName = convertPropertyToColumnName(property);
+                orderBy.append(columnName)
+                        .append(" ")
+                        .append(order.getDirection().name())
+                        .append(", ");
+            });
+            // Remove last comma and space
+            orderBy.setLength(orderBy.length() - 2);
+        }
+        orderBy.append(", e.id DESC");
         return orderBy.toString();
     }
+
     private String convertPropertyToColumnName(String property) {
         // Map entity property names to database column names
         return switch (property) {

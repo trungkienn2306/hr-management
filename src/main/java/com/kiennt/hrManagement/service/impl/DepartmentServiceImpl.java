@@ -6,6 +6,7 @@ import com.kiennt.hrManagement.entity.Department;
 import com.kiennt.hrManagement.exception.DuplicateException;
 import com.kiennt.hrManagement.exception.ResourceNotFoundException;
 import com.kiennt.hrManagement.repo.DepartmentRepository;
+import com.kiennt.hrManagement.repo.DepartmentRepositoryCustom;
 import com.kiennt.hrManagement.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
+    private final DepartmentRepositoryCustom departmentRepositoryCustom;
 
     @Override
     @Transactional
@@ -120,14 +122,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional(readOnly = true)
     public Page<DepartmentResponse> search(String search, Pageable pageable) {
-        Page<Department> departments;
-//        = departmentRepository.searchActiveDepartments(search, pageable);
-        if (search == null || search.trim().isEmpty()) {
-            departments = departmentRepository.findAllActive(pageable);
-        } else {
-            departments = departmentRepository.searchActiveDepartments(search, pageable);
-        }
-        return departments.map(this::mapToResponseWithEmployeeCount);
+        log.info("Searching departments with keyword: {}", search);
+        Page<DepartmentResponse> departments = departmentRepositoryCustom.searchDepartmentsDynamic(search, pageable);
+        return departments;
     }
 
     private DepartmentResponse mapToResponse(Department department) {
