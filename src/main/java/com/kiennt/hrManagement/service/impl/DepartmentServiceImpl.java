@@ -3,6 +3,8 @@ package com.kiennt.hrManagement.service.impl;
 import com.kiennt.hrManagement.dto.request.DepartmentRequest;
 import com.kiennt.hrManagement.dto.response.DepartmentResponse;
 import com.kiennt.hrManagement.entity.Department;
+import com.kiennt.hrManagement.exception.DepartmentDuplicateException;
+import com.kiennt.hrManagement.exception.ResourceNotFoundException;
 import com.kiennt.hrManagement.repo.DepartmentRepository;
 import com.kiennt.hrManagement.service.DepartmentService;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,12 +30,14 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         // Check duplicate code
         if (departmentRepository.existsByCode(request.getCode())) {
-            throw new IllegalArgumentException("Department code already exists: " + request.getCode());
+            log.error("Duplicate department code: {}", request.getCode());
+            throw new DepartmentDuplicateException("code", request.getCode());
         }
 
         // Check duplicate name
         if (departmentRepository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("Department name already exists: " + request.getName());
+            log.error("Duplicate department name: {}", request.getName());
+            throw new DepartmentDuplicateException("name", request.getName());
         }
 
         Department department = Department.builder()
@@ -55,7 +59,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         log.info("Updating department id: {}", id);
 
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Department not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
 
         // Check if trying to update department code
         if (!department.getCode().equals(request.getCode())) {
@@ -82,13 +86,14 @@ public class DepartmentServiceImpl implements DepartmentService {
         log.info("Deleting department id: {}", id);
 
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Department not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
 
         // Check if department has active employees
         Long employeeCount = departmentRepository.countActiveEmployeesByDepartment(id);
         if (employeeCount > 0) {
             throw new IllegalStateException(
-                    String.format("Cannot delete department. There are %d active employees in this department.", employeeCount)
+                    String.format("Cannot delete department. There are %d active employees in this department."
+                            , employeeCount)
             );
         }
 
@@ -102,8 +107,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Transactional(readOnly = true)
     public DepartmentResponse getById(Long id) {
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Department not found with id: " + id));
-        return mapToResponse(department);
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
+        return mapToResponseWithEmployeeCount(department);
     }
 
     @Override

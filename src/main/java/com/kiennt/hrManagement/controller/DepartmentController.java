@@ -25,7 +25,7 @@ public class DepartmentController {
             @Valid @RequestBody DepartmentRequest request) {
         DepartmentResponse response = departmentService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Department created successfully", response));
+                .body(ApiResponse.created("Department created successfully", response));
     }
 
     @PutMapping("/update/{id}")
