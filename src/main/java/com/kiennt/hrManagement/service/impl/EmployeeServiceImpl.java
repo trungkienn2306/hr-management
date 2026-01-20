@@ -166,6 +166,13 @@ public class EmployeeServiceImpl implements EmployeeService {
                             request.getToDepartmentId());
                 });
 
+        // Check if target department is active
+        if (toDepartment.getStatus() != null && toDepartment.getStatus() == 0) {
+            log.error("Cannot transfer employee to inactive department. Department id: {}, name: {}",
+                    toDepartment.getId(), toDepartment.getName());
+            throw new IllegalStateException("Cannot transfer employee to inactive department: " + toDepartment.getName());
+        }
+
         // Check if same department
         if (employee.getDepartment().getId().equals(toDepartment.getId())) {
             log.error("Cannot transfer employee {} to the same department {}", employeeId, toDepartment.getId());
