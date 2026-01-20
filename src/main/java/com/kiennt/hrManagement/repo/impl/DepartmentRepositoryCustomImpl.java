@@ -35,7 +35,7 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
         baseSql.append("WHERE d.status = 1 ");
 
         String selectSql = """
-                SELECT 
+                SELECT
                     d.id as id,
                     d.code as code,
                     d.name as name,
@@ -51,14 +51,12 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
         StringBuilder condition = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
 
-        // Filter by search keyword
         if (StringUtils.hasText(search)) {
             condition.append(" AND (LOWER(d.code) LIKE LOWER(CONCAT('%', :search, '%')) ");
             condition.append(" OR LOWER(d.name) LIKE LOWER(CONCAT('%', :search, '%'))) ");
             parameters.put("search", search);
         }
 
-        // Group by
         String groupBy = " GROUP BY d.id, d.code, d.name, d.description, d.status, d.created_at, d.created_by ";
 
         // Build order by
@@ -74,7 +72,6 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
         Query query = entityManager.createNativeQuery(finalSelectSql, Tuple.class);
         setParameters(query, parameters);
 
-        // Pagination
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
 
@@ -111,20 +108,14 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
     }
 
     private String convertPropertyToColumnName(String property) {
-        switch (property) {
-            case "id":
-                return "d.id";
-            case "code":
-                return "d.code";
-            case "name":
-                return "d.name";
-            case "createdAt":
-                return "d.created_at";
-            case "employeeCount":
-                return "employee_count";
-            default:
-                return "d." + property;
-        }
+        return switch (property) {
+            case "id" -> "d.id";
+            case "code" -> "d.code";
+            case "name" -> "d.name";
+            case "createdAt" -> "d.created_at";
+            case "employeeCount" -> "employee_count";
+            default -> "d." + property;
+        };
     }
 
     private void setParameters(Query query, Map<String, Object> parameters) {

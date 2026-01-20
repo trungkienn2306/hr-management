@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -59,12 +60,12 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
         Map<String, Object> parameters = new HashMap<>();
         List<String> conditions = new ArrayList<>();
 
-        if (departmentId != null) {
+        if (!ObjectUtils.isEmpty(departmentId)) {
             conditions.add("e.department_id = :departmentId");
             parameters.put("departmentId", departmentId);
         }
 
-        if (status != null) {
+        if (Objects.nonNull(status)) {
             conditions.add("e.status = :status");
             parameters.put("status", status);
         } else {

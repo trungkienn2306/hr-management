@@ -146,14 +146,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // Get employee with current department
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + employeeId));
+                .orElseThrow(() -> {
+                    log.error("Employee not found with id: {}", employeeId);
+                    return new ResourceNotFoundException("Employee not found with id: " + employeeId);
+                });
 
         // Get target department
         Department toDepartment = departmentRepository.findById(request.getToDepartmentId())
-                .orElseThrow(() -> new EntityNotFoundException("Target department not found with id: " + request.getToDepartmentId()));
+                .orElseThrow(() -> {
+                    log.error("Target department not found with id: {}", request.getToDepartmentId());
+                    return new ResourceNotFoundException("Target department not found with id: " +
+                            request.getToDepartmentId());
+                });
 
         // Check if same department
         if (employee.getDepartment().getId().equals(toDepartment.getId())) {
+            log.error("Cannot transfer employee {} to the same department {}", employeeId, toDepartment.getId());
             throw new IllegalArgumentException("Cannot transfer to the same department");
         }
 
