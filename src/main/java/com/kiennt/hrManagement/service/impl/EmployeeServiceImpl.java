@@ -51,6 +51,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         Department department = departmentRepository.findById(request.getDepartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + request.getDepartmentId()));
 
+        // Check if department is active (status = 1)
+        if (department.getStatus() != null && department.getStatus() == 0) {
+            log.error("Cannot create employee for inactive department. Department id: {}, name: {}",
+                    department.getId(), department.getName());
+            throw new IllegalStateException("Cannot create employee for inactive department: " + department.getName());
+        }
+
         Employee employee = Employee.builder()
                 .code(request.getCode())
                 .fullName(request.getFullName())
@@ -87,9 +94,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new IllegalArgumentException("Employee email already exists: " + request.getEmail());
         }
 
-        // Get new department if changed
-        Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new EntityNotFoundException("Department not found with id: " + request.getDepartmentId()));
+        // Check if trying to update departmentId
+        if (!employee.getDepartment().getId().equals(request.getDepartmentId())) {
+            throw new IllegalArgumentException("Cannot change department id");
+        }
 
         employee.setFullName(request.getFullName());
         employee.setEmail(request.getEmail());
@@ -97,7 +105,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPosition(request.getPosition());
         employee.setDateOfBirth(request.getDateOfBirth());
         employee.setStartDate(request.getStartDate());
-        employee.setDepartment(department);
 
         Employee updated = employeeRepository.save(employee);
         log.info("Employee updated successfully: {}", id);
