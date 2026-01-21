@@ -3,6 +3,7 @@ package com.kiennt.hrManagement.controller;
 import com.kiennt.hrManagement.dto.response.ApiResponse;
 import com.kiennt.hrManagement.dto.response.TransferHistoryResponse;
 import com.kiennt.hrManagement.service.TransferHistoryService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,13 @@ public class TransferHistoryController {
     private final TransferHistoryService transferHistoryService;
 
     @GetMapping("/employee/{employeeId}")
+    @Operation(
+            summary = "Find Transfer History by Employee ID",
+            description = """
+            ### Tìm kiếm lịch sử chuyển đổi phòng ban theo employeeId
+            - **Yêu cầu:** employeeId không được để trống
+            """
+    )
     public ResponseEntity<ApiResponse<Page<TransferHistoryResponse>>> getByEmployeeId(
             @PathVariable Long employeeId,
             @RequestParam(defaultValue = "0") int page,
@@ -42,6 +50,13 @@ public class TransferHistoryController {
     }
 
     @GetMapping("/department/{departmentId}")
+    @Operation(
+            summary = "Find Transfer History by Department ID",
+            description = """
+            ### Tìm kiếm lịch sử chuyển đổi phòng ban theo departmentId
+            - **Yêu cầu:** departmentId không được để trống
+            """
+    )
     public ResponseEntity<ApiResponse<Page<TransferHistoryResponse>>> getByDepartmentId(
             @PathVariable Long departmentId,
             @RequestParam(defaultValue = "0") int page,
@@ -57,6 +72,13 @@ public class TransferHistoryController {
     }
 
     @GetMapping("/search")
+    @Operation(
+            summary = "Search Transfer History",
+            description = """
+            ### Tìm kiếm lịch sử chuyển đổi phòng ban lọc theo employeeId và departmentId
+            - **Yêu cầu:** employeeId và departmentId không được để trống.
+            """
+    )
     public ResponseEntity<ApiResponse<Page<TransferHistoryResponse>>> searchTransfers(
             @RequestParam(required = false) Long employeeId,
             @RequestParam(required = false) Long departmentId,
