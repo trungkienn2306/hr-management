@@ -3,6 +3,7 @@ package com.kiennt.hrManagement.controller;
 import com.kiennt.hrManagement.dto.response.ApiResponse;
 import com.kiennt.hrManagement.dto.response.TransferHistoryResponse;
 import com.kiennt.hrManagement.service.TransferHistoryService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,10 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/transfer-history")
 @RequiredArgsConstructor
+@Tag(
+        name = "Transfer History API",
+        description =  "APIs for viewing transfer history"
+)
 public class TransferHistoryController {
 
     private final TransferHistoryService transferHistoryService;

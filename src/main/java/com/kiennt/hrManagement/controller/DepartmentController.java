@@ -4,6 +4,7 @@ import com.kiennt.hrManagement.dto.request.DepartmentRequest;
 import com.kiennt.hrManagement.dto.response.ApiResponse;
 import com.kiennt.hrManagement.dto.response.DepartmentResponse;
 import com.kiennt.hrManagement.service.DepartmentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/departments")
 @RequiredArgsConstructor
+@Tag(
+        name = "Department Management API",
+        description =  "CRUD for department"
+)
 public class DepartmentController {
     private final DepartmentService departmentService;
 

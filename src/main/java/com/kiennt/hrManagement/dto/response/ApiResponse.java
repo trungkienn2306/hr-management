@@ -1,5 +1,6 @@
 package com.kiennt.hrManagement.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Standard API response format")
 public class ApiResponse<T> {
     private boolean success;
     private String message;
